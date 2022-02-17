@@ -1,0 +1,146 @@
+R KODLARI
+data <-read.table("C:/Users/pc/Desktop/ data.txt",header=TRUE,sep="")
+View(data)
+names(data)
+names(data)<-c("y","x1","x2","x3","x4")
+attach(data)
+names(data)<-c("boy","oksijen","fosfor","mineral","tur")
+
+x4<-as.factor(x4)
+
+summary(data)
+
+qqnorm(y)
+qqline(y)
+
+install.packages("nortest")
+library(nortest)
+lillie.test(y)
+
+lny<-log(y)
+qqnorm(lny)
+qqline(lny)
+lillie.test(lny)
+
+
+boxplot(y)$out
+which(y %in% boxplot(y)$out)
+data1<- data [-c(20,26,32,40,56,81,86),]
+names(data1)
+names(data1)<-c("y","x1","x2","x3","x4")
+attach(data1)
+x4<-as.factor(x4)
+qqnorm(y)
+qqline(y)
+install.packages("nortest")
+library(nortest)
+lillie.test(y)
+pairs(data1)
+sonuc<-lm(y~x1+x2+x3+x4)
+summary(sonuc)
+
+inf<-ls.diag(sonuc) 
+inf
+
+par(mfrow=c(2,2))  
+ plot(predict(sonuc), inf$stud.res, ylab="Studentized Residuals", xlab="Predicted Value")
+ 
+ library(zoo)
+ cooksd <- cooks.distance(sonuc)
+plot(cooksd, pch="*", cex=2, main="Influential Obs by Cooks distance") 
+ abline(h = if (length(veri1$y)>50) 4/length(data1$y) else 4/(length(data1$y)-(length(data1)-1)), col="red")  
+ text(x=1:length(cooksd)+1, y=cooksd, labels=ifelse(cooksd>if (length(data1$y)>50) 4/length(data1$y) else 4/(length(data1$y)-(length(data1)-1)),names(cooksd),""), col="red")
+ 
+ hat<-inf$hat
+ plot(hat, pch="*", cex=2, main="Leverage Value by Hat value") 
+ abline(h = 2*(length(data1)+1)/length(y) , col="red") 
+ text(x=1:length(hat)+1, y=hat, labels=ifelse(hat>2*(length(data1)+1)/length(y),index(hat),""), col="red")
+
+ std.ress<-inf$std.res
+ plot(std.ress, pch="*", cex=2, main="Standartlaştırılmış artık") 
+ abline(h = c(-2,2) ,col="red") 
+ text(x=1:length(std.ress)+1, y=std.ress, labels=ifelse(std.ress>2,index(std.ress),""), col="red")
+ text(x=1:length(std.ress)+1, y=std.ress, labels=ifelse(std.ress< -2,index(std.ress),""), col="red")
+
+ stud.ress<-inf$stud.res
+ plot(stud.ress, pch="*", cex=2, main="Studentized Resudual")
+ abline(h = c(-3,3) ,col="red")   
+text(x=1:length(stud.ress)+1, y=stud.ress, labels=ifelse(stud.ress>3,index(stud.ress),""), col="red")
+ text(x=1:length(stud.ress)+1, y=stud.ress, labels=ifelse(stud.ress< -3,index(stud.ress),""), col="red")
+ 
+ 
+R KODLARI
+6)
+summary(lm(abs(residuals(sonuc)) ~ fitted(sonuc)))
+install.packages("lmtest")
+library(lmtest)
+bptest(sonuc)
+par(mfrow=c(2,2))
+plot(predict(sonuc), inf$stud.res, ylab="Studentized Residuals", xlab="Predicted Value")
+7)
+dwtest(sonuc)
+8) 
+library(DAAG) # car kütüphanesi aktif ise nitel katsayıları vermiyor. 
+detach("package:car", unload=TRUE)   #car paketinin kütüphaneden de-aktif yapıyor. 
+vif(sonuc) 
+ols_eigen_cindex(sonuc)
+install.packages("olsrr") 
+library(olsrr) 
+ols_vif_tol(sonuc)
+x4<-as.factor(x4)
+sonuc<-lm(y~x1+x2+x3+x4)
+inf<-ls.diag(sonuc)
+install.packages("olsrr") 
+library(olsrr) 
+ols_vif_tol(sonuc)
+  
+library(DAAG) # car kütüphanesi aktif ise nitel katsayıları vermiyor. 
+detach("package:car", unload=TRUE) #car paketinin kütüphane de aktif yapıyor. 
+vif(sonuc)  
+  
+  
+9)
+sonuc<-lm(data$y~data$x1+data$x2+data$x3+data$x4)
+sonuc
+summary(sonuc)
+10)
+predict(sonuc,data.frame(x1=4.051803, x2=1.3639272, x3=3.622157, x4=2), interval = 'confidence')
+11)
+predict(sonuc,data.frame(x1=5.5078509, x2=2.02865047, x3=3.045655, x4=3), interval = 'confidence')
+12)
+confint(sonuc, level=0.99)
+14)
+----İleriye Doğru Seçim Yöntemi
+library(stats)
+lm.null<-lm(data$y~1)
+install.packages("forward")
+forward<-step(lm.null,data$y~data$x1+data$x2+data$x3+data$x4,direction = "forward")
+forward
+summary(forward)
+----Geriye Doğru Seçim Yöntemi
+install.packages("backward")
+backward<-step(sonuc,direction = "backward")
+summary(backward)
+----Adımsal Seçim Yöntemi
+library(MASS)
+step.model<-stepAIC(sonuc,direction = "both",trace = FALSE)
+summary(step.model) 
+data
+15)
+library(MASS)
+ridge<-lm.ridge(data$y~data$x1+data$x2+data$x3+data$x4,lambda=seq(0,1,0.05))
+ridge
+matplot(ridge$lambda,t(ridge$coef),type="l",xlab=expression(lambda),ylab=expression(hat(beta)))
+abline(h=0,lwd=2)
+ridge$coef
+select(ridge)
+ridge$coef [,ridge$lm==0.05]
+
+
+
+
+
+
+
+
+
